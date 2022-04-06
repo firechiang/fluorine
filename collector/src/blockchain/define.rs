@@ -24,3 +24,12 @@ pub struct OTransaction {
     pub token_name:String,
     pub date_time:u32
 }
+
+#[derive(Debug,Clone)]
+#[allow(dead_code)]
+pub struct Token {
+    pub contract: &'static str,
+    pub name: String,
+    pub symbol: String,
+    pub decimals: u32
+}
