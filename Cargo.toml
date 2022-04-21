@@ -1,7 +1,8 @@
 [workspace]
 members = [
     "collector",
-    "core",
+    "commons",
     "net",
-    "client"
+    "client",
+    "validator"
 ]

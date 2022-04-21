@@ -1,7 +1,7 @@
 use {
     reqwest::header::HeaderMap,
     std::time::Duration,
-    core::types::ProtoType,
+    commons::types::ProtoType,
     super::super::define::*,
     serde::de::DeserializeOwned,
     serde::{Deserialize, Serialize},

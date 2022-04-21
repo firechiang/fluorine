@@ -63,7 +63,7 @@ dependencies = [
 name = "collector"
 version = "0.1.0"
 dependencies = [
- "core",
+ "commons",
  "dashmap",
  "lazy_static",
  "reqwest",
@@ -73,7 +73,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "core"
+name = "commons"
 version = "0.1.0"
 dependencies = [
  "futures",
@@ -1018,6 +1018,22 @@ dependencies = [
  "idna",
  "matches",
  "percent-encoding",
+]
+
+[[package]]
+name = "validator"
+version = "0.1.0"
+dependencies = [
+ "futures",
+ "log",
+ "protobuf",
+ "protobuf-codegen-pure",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tokio-stream",
+ "tokio-util",
 ]
 
 [[package]]
