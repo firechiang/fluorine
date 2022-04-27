@@ -24,7 +24,7 @@ mod test_utile {
 
     #[test]
     fn test_can_connect() {
-        let is = utils::net::can_connect("49.234.43.49",80);
+        let is = utils::net::can_connect("124.220.202.187",8080);
         println!("{:#?}",is);
     }
 
