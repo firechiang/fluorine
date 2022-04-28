@@ -1,22 +1,29 @@
+pub mod listener;
+
 //use std::cmp::Ordering;
 use std::collections::HashMap;
 
 /**
  * event
  */
-pub trait EventObject {
+pub trait EventObject<T> {
 
     // Returns a unique value
     fn name(&self) -> &str;
+
+    fn body(&self) -> T;
 }
 
+pub struct EventUser {
+
+}
 
 /**
  * listener
  */
 pub trait EventListener {
 
-    fn on_event(&self,event: Box<dyn EventObject>);
+    fn on_event(&self,event: Box<dyn EventObject<EventUser>>);
 }
 
 /**
@@ -64,8 +71,9 @@ impl EventContext {
         self.listeners.insert(event_name,listener)
     }
 
-    pub fn event(&self,event: Box<dyn EventObject>) {
+    pub fn event(&self,event: Box<dyn EventObject<EventUser>>) {
         let obj = self.listeners.get(event.name()).unwrap();
-        EventListener::on_event(&**obj, event);
+        obj.on_event(event);
+        //EventListener::on_event(&**obj, event);
     }
 }

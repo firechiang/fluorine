@@ -1,5 +1,6 @@
 pub mod protos;
 pub mod utils;
+pub mod event;
 
 #[cfg(test)]
 mod test_protos {
@@ -38,6 +39,43 @@ mod test_utile {
             Err(_e) => {}
         }
     }
+}
+
+#[cfg(test)]
+mod test_event {
+
+    use crate::event::*;
+
+    struct GossEvent;
+    struct GossEventListener;
+
+    impl EventObject<EventUser> for GossEvent {
+        fn name(&self) -> &str {
+            "GossEvent"
+        }
+
+        fn body(&self) -> EventUser {
+            EventUser{}
+        }
+    }
+
+    impl EventListener for GossEventListener {
+        fn on_event(&self, event: Box<dyn EventObject<EventUser>>) {
+            let body = event.body();
+            println!("触发{}事件",event.name());
+        }
+    }
+
+    #[test]
+    fn test_event() {
+        let event = GossEvent{};
+        let listener = GossEventListener{};
+        let mut context = EventContext::new();
+        context.add_listener("GossEvent",Box::new(listener));
+        context.event(Box::new(event));
+        println!("测试");
+    }
+
 }
 
 
