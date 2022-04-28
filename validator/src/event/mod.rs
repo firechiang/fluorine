@@ -51,18 +51,17 @@ pub trait EventListener {
 
 
 /**
- * context
+ * route
  */
-pub struct EventContext {
-
+pub struct EventRoute {
     listeners: HashMap<&'static str,Box<dyn EventListener>>,
 }
 
-impl EventContext {
+impl EventRoute {
 
-    pub fn new() -> EventContext {
+    pub fn new() -> EventRoute {
         let listeners:HashMap<&'static str,Box<dyn EventListener>> = HashMap::new();
-        EventContext {
+        EventRoute {
             listeners
         }
     }

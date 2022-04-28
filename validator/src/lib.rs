@@ -70,7 +70,7 @@ mod test_event {
     fn test_event() {
         let event = GossEvent{};
         let listener = GossEventListener{};
-        let mut context = EventContext::new();
+        let mut context = EventRoute::new();
         context.add_listener("GossEvent",Box::new(listener));
         context.event(Box::new(event));
         println!("测试");
