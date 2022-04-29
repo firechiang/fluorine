@@ -1,6 +1,7 @@
 pub mod types;
 pub mod interface;
 pub mod protos;
+pub mod net;
 
 #[cfg(test)]
 mod test_types {

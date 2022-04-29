@@ -18,6 +18,40 @@ use std::thread::sleep;
 use std::io::Write;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
+
+//use serde_derive::{Serialize, Deserialize};
+// use rmp_serde::Serializer;
+// use serde::{Serialize, Deserialize};
+//
+// #[derive(Serialize, Deserialize, Debug)]
+// pub struct Message {
+//     x: f32,
+//     msg: String,
+// }
+//
+// impl Message {
+//     pub fn pack(&self) -> Vec<u8> {
+//         let mut buf = Vec::new();
+//         self.serialize(&mut Serializer::new(&mut buf)).unwrap();
+//         buf
+//     }
+//
+//     pub fn unpack(buf: Vec<u8>) -> Message {
+//         rmp_serde::from_slice::<Message>(&buf).unwrap()
+//     }
+// }
+//
+// fn main() {
+//     let msg = Message {
+//         x: 20.0,
+//         msg: "sdfsdfsdfsd".to_string()
+//     };
+//     let byte = msg.pack();
+//     let m = Message::unpack(byte);
+//     //println!("{:#?}",byte);
+//     println!("{:#?}",m);
+// }
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut stream = TcpStream::connect("127.0.0.1:9060").await?;
@@ -33,7 +67,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             // 程序暂停4秒
             sleep(Duration::from_secs(3));
             let timestamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap();
-            let msg = format!("{:#?}", timestamp);
+            let msg = format!("{:#?}\n1111", timestamp);
             stream_write.send(msg).await;
         }
     });
