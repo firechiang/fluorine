@@ -3,7 +3,7 @@
 use tokio::net::{TcpListener, TcpStream};
 use tokio::sync::{mpsc, Mutex};
 use tokio_stream::StreamExt;
-use tokio_util::codec::{Framed, LinesCodec};
+use tokio_util::codec::{Framed, LinesCodec,LengthDelimitedCodec};
 
 use futures::SinkExt;
 use std::collections::HashMap;
@@ -12,6 +12,7 @@ use std::error::Error;
 use std::io;
 use std::net::SocketAddr;
 use std::sync::Arc;
+use bytes::Bytes;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -68,14 +69,14 @@ impl Shared {
 // 一个节点
 struct Peer {
     // 一行消息
-    lines: Framed<TcpStream,LinesCodec>,
+    lines: Framed<TcpStream,LengthDelimitedCodec>,
     // 消息接收管道
     rx: Rx,
 }
 
 impl Peer {
     // 创建节点
-    async fn new(state: Arc<Mutex<Shared>>,lines: Framed<TcpStream,LinesCodec>)-> io::Result<Peer> {
+    async fn new(state: Arc<Mutex<Shared>>,lines: Framed<TcpStream,LengthDelimitedCodec>)-> io::Result<Peer> {
         let addr = lines.get_ref().peer_addr()?;
         // 创建无界通道，得到发送和接收数据通道（注意：可能导致内存溢出）
         let(tx,rx) = mpsc::unbounded_channel();
@@ -91,9 +92,9 @@ impl Peer {
 // 处理客户端连接
  async fn process(state: Arc<Mutex<Shared>>,stream: TcpStream,addr: SocketAddr) -> Result<(), Box<dyn Error>> {
     // 利用行解码器创建数据框架
-    let mut lines = Framed::new(stream,LinesCodec::new());
+    let mut lines = Framed::new(stream,LengthDelimitedCodec::new());
     // 向客户端发送“请输入用户名”
-    lines.send("Please enter your username:").await?;
+    lines.send(Bytes::from("Please enter your username:")).await?;
 
     let username = match lines.next().await {
         Some(Ok(line)) => line,
@@ -107,7 +108,7 @@ impl Peer {
     // 新节点加入广播到集群
     {
         let mut state = state.lock().await;
-        let msg = format!("节点: {} 加入集群",username);
+        let msg = format!("节点: {:#?} 加入集群",username);
         state.broadcast(addr,&msg).await;
     }
     // 处理接收数据
@@ -115,14 +116,14 @@ impl Peer {
         tokio::select! {
             // 接收数据将其交给解码器
             Some(msg) = peer.rx.recv() => {
-                peer.lines.send(&msg).await?;
+                peer.lines.send(Bytes::from(msg)).await?;
             }
             // 解码一行数据
             result = peer.lines.next() => match result {
                 // 收到消息后将消息广播给其它几点
                 Some(Ok(msg)) => {
                     let mut state = state.lock().await;
-                    let msg = format!("{}: {}", username, msg);
+                    let msg = format!("{:#?}: {:#?}", username, msg);
                     println!("{}",&msg);
                     // 广播消息
                     state.broadcast(addr, &msg).await;
@@ -130,7 +131,7 @@ impl Peer {
                 // 消息接收错误
                 Some(Err(e)) => {
                     println!(
-                        "节点 {} 处理接收消息发送错误; error = {:?}",
+                        "节点 {:#?} 处理接收消息发送错误; error = {:?}",
                         username,
                         e
                     );
@@ -146,7 +147,7 @@ impl Peer {
         let mut state = state.lock().await;
         state.peers.remove(&addr);
 
-        let msg = format!("节点: {} 离开集群", username);
+        let msg = format!("节点: {:#?} 离开集群", username);
         println!("{}", msg);
         state.broadcast(addr, &msg).await;
     }
